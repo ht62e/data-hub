@@ -1,0 +1,4 @@
+[
+  { "timestamp": "2026-01-01T00:00:00Z", "equipmentId": "press-01", "level": "INFO", "message": "Production started" },
+  { "timestamp": "2026-01-01T00:01:00Z", "equipmentId": "press-01", "level": "WARN", "message": "Temperature approaching limit" }
+]

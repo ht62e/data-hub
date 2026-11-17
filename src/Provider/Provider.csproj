@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../Contracts/Contracts.csproj" />
+    <ProjectReference Include="../PlatformTransport/PlatformTransport.csproj" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+    <PackageReference Include="Npgsql" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup><Content Update="sample-logs.json" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
+</Project>

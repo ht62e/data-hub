@@ -1,0 +1,83 @@
+syntax = "proto3";
+option csharp_namespace = "DataHub.Contracts";
+package datahub;
+
+// The lease is renewed by re-registering; stale providers disappear automatically.
+service Registry {
+  rpc Register (RegisterRequest) returns (RegisterReply);
+}
+service HubApi {
+  rpc ListSources (Empty) returns (SourceList);
+  rpc Read (ReadRequest) returns (ReadReply);
+}
+service ProviderApi {
+  rpc Read (ProviderReadRequest) returns (ReadReply);
+}
+// Reads only sources registered at this hub. Never forwards to another hub.
+service HubRelayApi {
+  rpc ReadSource (RelayReadRequest) returns (ReadReply);
+}
+// Private, authenticated hub-to-hub control plane. Never transfers provider data.
+service FederationApi {
+  rpc Negotiate (DiscoverRequest) returns (FederationTopology);
+  rpc Discover (DiscoverRequest) returns (FederationCatalog);
+}
+message Empty {}
+message RegisterRequest {
+  string source_id = 1;
+  string display_name = 2;
+  ProviderTarget target = 3;
+  string api_version = 4;
+}
+message RegisterReply { int32 lease_seconds = 1; }
+// All public source IDs use owner-hub/local-source, including local sources.
+message Source { string id = 1; string display_name = 2; }
+message SourceList { repeated Source sources = 1; repeated string unavailable_hubs = 2; bool truncated = 3; }
+message ServiceTarget { string platform_id = 1; string service_id = 2; }
+// External node addresses and credentials are configured only at their owning hub.
+message ProviderTarget {
+  oneof location {
+    ServiceTarget platform_service = 1;
+    string external_node_id = 2;
+  }
+}
+message ReadRequest {
+  reserved 1, 4;
+  reserved "client_id", "expected_source_id";
+  int32 limit = 2;
+  string correlation_id = 3;
+  string source_id = 5;
+}
+message RelayReadRequest { string source_id = 1; string api_version = 2; int32 limit = 3; string correlation_id = 4; }
+message ProviderReadRequest {
+  int32 limit = 1;
+  string api_version = 2;
+  string correlation_id = 3;
+  // Required identity check: detects incorrect name resolution / stale registrations. Not authorization.
+  string expected_source_id = 4;
+  ProviderTarget expected_target = 5;
+}
+message LogRecord { string timestamp = 1; string equipment_id = 2; string level = 3; string message = 4; }
+message ReadReply { repeated LogRecord records = 1; string correlation_id = 2; }
+message DiscoverRequest {
+  repeated string visited_hubs = 1;
+  int32 remaining_hops = 2;
+  // Required for Discover: admit only the peer instance verified by topology negotiation.
+  // Negotiate leaves this empty so a restarted peer can be verified again.
+  string expected_instance_id = 3;
+}
+message FederationSource {
+  Source source = 1;
+  ProviderTarget target = 2;
+  string api_version = 3;
+  ServiceTarget owner = 4;
+  repeated string hub_path = 5;
+}
+message FederationCatalog {
+  string hub_id = 1;
+  repeated FederationSource sources = 2;
+  repeated string unavailable_hubs = 3;
+  bool truncated = 4;
+}
+message FederationNode { string hub_id = 1; string instance_id = 2; repeated string downstream_hubs = 3; }
+message FederationTopology { string hub_id = 1; repeated FederationNode nodes = 2; }

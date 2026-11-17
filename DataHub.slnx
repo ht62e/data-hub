@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Contracts/Contracts.csproj" />
+    <Project Path="src/PlatformTransport/PlatformTransport.csproj" />
+    <Project Path="src/ClientSdk/ClientSdk.csproj" />
+    <Project Path="src/Hub/Hub.csproj" />
+    <Project Path="src/Provider/Provider.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Smoke/Smoke.csproj" />
+    <Project Path="tests/Regression/Regression.csproj" />
+    <Project Path="tests/FederationSmoke/FederationSmoke.csproj" />
+  </Folder>
+</Solution>
